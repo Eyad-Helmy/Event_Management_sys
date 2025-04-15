@@ -9,7 +9,7 @@ const register = async (req, res) => {
   if (!errors.isEmpty())
     return res.status(400).json({ success: false, errors: errors.array() });
 
-  const { username, email, password, role = 'attendee' } = req.body;
+  const { username, email, password, role } = req.body;
 
   if (await User.getByEmail(email))
     return res.status(400).json({ success: false, message: 'Email already registered' });
