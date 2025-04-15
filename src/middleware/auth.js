@@ -3,9 +3,9 @@ const {verifyToken} = require('../config/jwt');
 // const token = generateToken(123, "attendee");
 // console.log(token);
 
-const authnicateUser = (req, res, next) => {
+const authenticateUser = (req, res, next) => {
     // Get token from authorization header in the req 
-    const authHeader = req.header["authorization"];
+    const authHeader = req.headers["authorization"];
 
     //check if it is formatted correctly and if the token exists
     if(!authHeader || !authHeader.startsWith("Bearer ")){
@@ -44,6 +44,6 @@ const authorizeRole = (...allowedRoles) => {
 }
 
 module.exports = {
-    authnicateUser,
+    authenticateUser,
     authorizeRole
 }
