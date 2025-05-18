@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, switchRole } = require('../controllers/authController');
+const { register, login } = require('../controllers/authController');
 const { authenticateUser } = require('../middleware/auth');
 const { body } = require('express-validator');
 
@@ -14,9 +14,5 @@ router.post('/login', [
   body('email').isEmail(),
   body('password').notEmpty()
 ], login);
-
-router.post('/switch-role', authenticateUser, [
-  body('role').isIn(['attendee', 'organizer', 'venue_admin', 'admin'])
-], switchRole);
 
 module.exports = router;

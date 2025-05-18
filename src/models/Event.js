@@ -20,6 +20,44 @@ const Event = {
   async getByOrganizer(organizerId) {
     const [rows] = await pool.query('SELECT * FROM events WHERE organizer_id = ?', [organizerId]);
     return rows;
+  },
+
+  async getAll() {
+    const [rows] = await pool.query(`
+      SELECT 
+        e.*,
+        v.name as venue_name,
+        v.location as venue_location,
+        u.username as organizer_name
+      FROM events e
+      LEFT JOIN venues v ON e.venue_id = v.id
+      LEFT JOIN users u ON e.organizer_id = u.id
+      ORDER BY e.date ASC
+    `);
+    return rows;
+  },
+
+  async getById(id) {
+    const [rows] = await pool.query(`
+      SELECT 
+        e.*,
+        v.name as venue_name,
+        v.location as venue_location,
+        u.username as organizer_name
+      FROM events e
+      LEFT JOIN venues v ON e.venue_id = v.id
+      LEFT JOIN users u ON e.organizer_id = u.id
+      WHERE e.id = ?
+    `, [id]);
+    return rows[0];
+  },
+
+  async cancel(eventId, organizerId) {
+    const [result] = await pool.query(
+      'DELETE FROM events WHERE id = ? AND organizer_id = ?',
+      [eventId, organizerId]
+    );
+    return result.affectedRows > 0;
   }
 };
 
