@@ -11,7 +11,7 @@ const Registration = {
 
     async cancel(attendeeId, eventId){
         await pool.query(
-            "DELETE FROM registrations WHERE attendee_id = ?, event_id = ?",
+            "DELETE FROM registrations WHERE attendee_id = ? AND event_id = ?",
             [attendeeId, eventId]
         );
     },
@@ -32,7 +32,27 @@ const Registration = {
           [attendeeId]
         );
         return rows;
-      }
+      },
+    
+    async getAllRegistrationsByOrganizer(organizerId) {
+    const [rows] = await pool.query(`
+      SELECT 
+        r.id AS registration_id,
+        r.event_id,
+        r.attendee_id,
+        r.registration_date,
+        e.title AS event_title,
+        e.date AS event_date,
+        u.username AS attendee_name,
+        u.email AS attendee_email
+      FROM registrations r
+      INNER JOIN events e ON r.event_id = e.id
+      INNER JOIN users u ON r.attendee_id = u.id
+      WHERE e.organizer_id = ?
+      ORDER BY e.date ASC, r.registration_date ASC
+    `, [organizerId]);
+    return rows;
+    },
     };
 
 module.exports = Registration;

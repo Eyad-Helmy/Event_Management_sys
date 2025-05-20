@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateUser, authorizeRole } = require('../middleware/auth');
-const { createEvent, getMyEvents, getAllEvents, getEventById, cancelEvent } = require('../controllers/eventController');
+const { createEvent, getMyEvents, getAllEvents, getEventById, cancelEvent, getApprovedEvents } = require('../controllers/eventController');
 const { body } = require('express-validator');
 
 router.get('/', getAllEvents);
@@ -34,5 +34,6 @@ router.delete(
   authorizeRole('organizer'),
   cancelEvent
 );
+
 
 module.exports = router;

@@ -32,6 +32,7 @@ const Event = {
       FROM events e
       LEFT JOIN venues v ON e.venue_id = v.id
       LEFT JOIN users u ON e.organizer_id = u.id
+      WHERE e.status = 'approved'
       ORDER BY e.date ASC
     `);
     return rows;
@@ -58,7 +59,15 @@ const Event = {
       [eventId, organizerId]
     );
     return result.affectedRows > 0;
-  }
+  },
+
+  async updateStatus(id, status) {
+    const [result] = await pool.query(
+      'UPDATE events SET status = ? WHERE id = ?',
+      [status, id]
+    );
+    return result.affectedRows > 0;
+  },
 };
 
 module.exports = Event;

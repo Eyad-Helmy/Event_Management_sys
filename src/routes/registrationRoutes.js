@@ -23,5 +23,10 @@ router.get(
     authorizeRole('attendee'),
     registrationController.getMyRegistrations
 );
+
+router.get(
+    '/organizer/:organizerId',
+    registrationController.getAllRegistrationsByOrganizer
+)
   
 module.exports = router;

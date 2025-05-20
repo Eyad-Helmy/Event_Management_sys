@@ -17,7 +17,19 @@ const Venue = {
   async getById(id) {
     const [rows] = await pool.query('SELECT * FROM venues WHERE id = ?', [id]);
     return rows[0];
-  }
+  },
+
+  async getAll() {
+    const [rows] = await pool.query(`
+      SELECT 
+        v.*,
+        u.username as admin_name
+      FROM venues v
+      LEFT JOIN users u ON v.admin_id = u.id
+      ORDER BY v.name ASC
+    `);
+    return rows;
+  },
 };
 
 module.exports = Venue;

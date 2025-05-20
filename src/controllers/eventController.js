@@ -1,25 +1,59 @@
 const { validationResult } = require('express-validator');
 const Event = require('../models/Event');
 const Venue = require('../models/Venue');
+const Booking = require('../models/Booking');
+const { pool } = require('../config/database');
 
 const createEvent = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() });
+  try {
+    const { title, description, date, venueId } = req.body;
+    const organizerId = req.user.id;
+
+    // Validate fields
+    if (!title || !description || !date || !venueId) {
+      return res.status(400).json({ success: false, message: 'Missing fields' });
+    }
+
+    // Insert event with status 'pending'
+    const [eventResult] = await pool.query(
+      `INSERT INTO events (title, description, date, venue_id, organizer_id, status)
+       VALUES (?, ?, ?, ?, ?, 'pending')`,
+      [title, description, date, venueId, organizerId]
+    );
+
+    const eventId = eventResult.insertId;
+
+    // Get the venue's admin
+    const [venueRows] = await pool.query(
+      `SELECT admin_id FROM venues WHERE id = ?`,
+      [venueId]
+    );
+
+    if (venueRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Venue not found' });
+    }
+
+    const adminId = venueRows[0].admin_id;
+
+    // Create booking request
+    await Booking.request({
+      event_id: eventId,
+      venue_id: venueId,
+      organizer_id: organizerId,
+      admin_id: adminId
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Event created and sent for approval',
+      eventId
+    });
+
+  } catch (error) {
+    console.error('Create event error:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
-
-  const { title, description, date, venueId } = req.body;
-  const organizerId = req.user.id;
-
-  const venue = await Venue.getById(venueId);
-  if (!venue) return res.status(404).json({ success: false, message: 'Venue not found' });
-
-  const conflict = await Event.getConflicting(venueId, date);
-  if (conflict) return res.status(400).json({ success: false, message: 'Venue already booked' });
-
-  const eventId = await Event.create({ title, description, date, organizerId, venueId });
-  res.status(201).json({ success: true, eventId, message: 'Event created and pending approval' });
-};
+};  
 
 const getMyEvents = async (req, res) => {
   const events = await Event.getByOrganizer(req.user.id);

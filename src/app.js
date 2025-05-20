@@ -8,9 +8,10 @@ const userRoutes = require("./routes/userRoutes");
 const venueRoutes = require("./routes/venueRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const registrationRoutes = require("./routes/registrationRoutes");
+const bookingRoutes = require('./routes/bookingRoutes');
 
 app.use(cors({
-    origin: 'http://127.0.0.1:5500',
+    origin: '*',
     credentials: true
   }));
 app.use(express.json());
@@ -20,6 +21,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/venues', venueRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/registrations', registrationRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

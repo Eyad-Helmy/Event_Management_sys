@@ -36,7 +36,7 @@ const login = async (req, res) => {
     return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
   const token = generateToken(user.id, user.active_role);
-  res.json({ success: true, user: { id: user.id, username: user.username, email: user.email, role: user.active_role }, token });
+  res.status(201).json({ success: true, user: { id: user.id, username: user.username, email: user.email, role: user.active_role }, token });
 };
 
 const switchRole = async (req, res) => {

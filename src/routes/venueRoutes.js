@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateUser, authorizeRole } = require('../middleware/auth');
-const { addVenue, getMyVenues } = require('../controllers/venueController');
+const VenueController = require('../controllers/venueController');
 const { body } = require('express-validator');
+
+router.get(
+  '/',
+  VenueController.getAllVenues
+)
 
 router.post(
   '/add-venue',
@@ -13,14 +18,14 @@ router.post(
     body('location').notEmpty(),
     body('capacity').notEmpty()
   ],
-  addVenue
+  VenueController.addVenue
 );
 
 router.get(
   '/my',
   authenticateUser,
   authorizeRole('venue_admin'),
-  getMyVenues
+  VenueController.getMyVenues
 );
 
 module.exports = router;
